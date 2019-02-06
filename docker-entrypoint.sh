@@ -13,25 +13,19 @@ if [ "$DEVOP_USERNAME" != "devop" ]; then
     sudo passwd -d ${DEVOP_USERNAME};
 fi
 
+sudo mkdir -p /data /config
 sudo chown ${DEVOP_USERNAME}:${DEVOP_USERNAME} /data /config
 
-sudo -u ${DEVOP_USERNAME} echo >&2 "Who am I : $(whoami)  ${DEVOP_USERNAME}"
-# getting latest vim plugin
-sudo -u ${DEVOP_USERNAME} curl -fLo /home/${DEVOP_USERNAME}/.local/share/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim;
-#setting up directories
-sudo -u ${DEVOP_USERNAME} mkdir -p /home/${DEVOP_USERNAME}/.config/nvim;
-sudo -u ${DEVOP_USERNAME} mkdir -p /home/${DEVOP_USERNAME}/.tmux/;
-sudo chown -R ${DEVOP_USERNAME}:${DEVOP_USERNAME} /home/${DEVOP_USERNAME}
-#setting up configurations
-export XDG_CONFIG_HOME=/home/${DEVOP_USERNAME}/.config;
-sudo -u ${DEVOP_USERNAME} cp /tmp/init.vim /home/${DEVOP_USERNAME}/.config/nvim/
-sudo -u ${DEVOP_USERNAME} cp /tmp/tmux.conf /home/${DEVOP_USERNAME}/.tmux/
-sudo -u ${DEVOP_USERNAME} ln -s /home/${DEVOP_USERNAME}/.tmux/tmux.conf /home/${DEVOP_USERNAME}/.tmux.conf;
+# setup nvim plugins.
+sudo su ${DEVOP_USERNAME} ./usr/local/bin/user-setup.sh "${DEVOP_USERNAME}"
+## get plugins.
+echo >&2 "Getting Plugins for Neovim..."
+sudo mv /tmp/vim/plugin/* /home/${DEVOP_USERNAME}/.vim/plugged
+sudo mv /tmp/.bash_aliases /home/${DEVOP_USERNAME}
+sudo chown -R ${DEVOP_USERNAME}:${DEVOP_USERNAME} /home/${DEVOP_USERNAME}/
 
-sudo -u ${DEVOP_USERNAME} chmod 666 /home/${DEVOP_USERNAME}/.profile
-#Updating profiles aliases and other stuff
-cat /tmp/.profile >> /home/${DEVOP_USERNAME}/.profile && source /home/${DEVOP_USERNAME}/.profile
-rm /tmp/*
+#sudo rm -rf /tmp/*
+#sudo -u ${DEVOP_USERNAME} nvim -u /home/${DEVOP_USERNAME}/.config/nvim/init.vim :PlugInstall
 sudo su - ${DEVOP_USERNAME}
 
 exec "$@"
