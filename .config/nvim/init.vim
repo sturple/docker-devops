@@ -1,40 +1,41 @@
-1 call plug#begin('~/.vim/plugged')
-2 Plug 'godlygeek/tabular'
-3 Plug 'isobit/vim-darcula-colors'
-4 call plug#end()
-5
-6 set number
-7 set ignorecase
-8 set smartcase
-9 set hlsearch
-10 set incsearch
-11 set nobackup
-12 set nowb
-13 set noswapfile
-14 set autoindent
-15 set smarttab
-16
-17
-18 " Softtabs, 2 spaces
-19 set tabstop=2
-20 set shiftwidth=2
-21 set shiftround
-22 set expandtab
-23 set autochdir
-24 syntax on
-25 color darcula
-26
-27
-28 let mapleader = "\\"
-29 inoremap <C-s>  <c-o>:update<cr>
-30 nma <C-s> <c-o>:update<cr>
-31 " nmap <silent> <leader>ev :e $MYVIMRC <CR>
-32 nmap <silent> <leader>sv :source $MYVIMRC<CR>:filetype detect<CR>:exe ":echo 'vimrc reloaded'"<CR>
-33
-34
-35 " :inoremap <C-v> <ESC>"+pa
-36 :vnoremap <C-c> "+y
-37 :vnoremap <C-d> "+d<Paste>
+call plug#begin('~/.vim/plugged')
+Plug 'godlygeek/tabular'
+Plug 'isobit/vim-darcula-colors'
+call plug#end()
+
+set number
+set ignorecase
+set smartcase
+set hlsearch
+set incsearch
+set nobackup
+set nowb
+set noswapfile
+set autoindent
+set smarttab
+
+set laststatus=2
+" Softtabs, 2 spaces
+set tabstop=2
+set shiftwidth=2
+set shiftround
+set expandtab
+set autochdir
+syntax on
+color darcula
+set clipboard=unnamed
+
+let mapleader = "\\"
+inoremap <C-s>  <c-o>:update<cr>
+nma <C-s> <c-o>:update<cr>
+" nmap <silent> <leader>ev :e $MYVIMRC <CR>
+nmap <silent> <leader>sv :source $MYVIMRC<CR>:filetype detect<CR>:exe ":echo 'vimrc reloaded'"<CR>
+
+
+" :inoremap <C-v> <ESC>"+pa
+:vnoremap <C-c> "*y
+:vnoremap <C-d> "*d<Paste>
+
 nnoremap <Leader>l :ls<CR>
 nnoremap <Leader>b :bp<CR>
 nnoremap <Leader>f :bn<CR>
@@ -49,3 +50,42 @@ nnoremap <Leader>7 :7b<CR>
 nnoremap <Leader>8 :8b<CR>
 nnoremap <Leader>9 :9b<CR>
 nnoremap <Leader>0 :10b<CR>
+
+nnoremap <C-S-tab> :tabprevious<CR>
+nnoremap <C-tab>   :tabnext<CR>
+nnoremap <C-t>     :tabnew<CR>
+inoremap <C-S-tab> <Esc>:tabprevious<CR>i
+inoremap <C-tab>   <Esc>:tabnext<CR>i
+inoremap <C-t>     <Esc>:tabnew<CR>
+
+
+function! GitBranch()
+  return system("git rev-parse --abbrev-ref HEAD 2>/dev/null | tr -d '\n'")
+endfunction
+
+function! GitDirty()
+  let l:dirty = system("git status --porcelain")
+  return strlen(l:dirty) >0?' Dirty ':''
+endfunction
+
+
+function! StatuslineGit()
+  let l:branchname = GitBranch()
+  return strlen(l:branchname) > 0?'  '.l:branchname.' ':''
+endfunction
+
+set statusline=
+set statusline+=%#PmenuSel#
+set statusline+=%{StatuslineGit()}
+set statusline+=%{GitDirty()}
+set statusline+=%#LineNr#
+set statusline+=\ %f
+set statusline+=%m\
+set statusline+=%=
+set statusline+=%#CursorColumn#
+set statusline+=\ %y
+set statusline+=\ %{&fileencoding?&fileencoding:&encoding}
+set statusline+=\[%{&fileformat}\]
+set statusline+=\ %p%%
+set statusline+=\ %l:%c
+set statusline+=\
